@@ -1,0 +1,111 @@
+**PDFify API Documentation**
+
+The PDFifyController class provides API endpoints to handle PDF files,
+including uploading, downloading, and searching for text within PDFs.
+Below is the detailed documentation for each API:
+
+---
+
+### **API Endpoint: Upload a Single PDF File**
+
+- **Description:** This endpoint allows users to upload a single PDF file.
+
+- **URL:** `/api/v1/pdfify/storeSingleFile`
+
+- **HTTP Method:** POST
+
+- **Request Parameters:**
+  - `file` (MultipartFile): The PDF file to be uploaded.
+
+- **Responses:**
+  - Success (Status 200 OK):
+    - `FileUploadResponse` JSON object containing the uploaded file information:
+      - `fileName`: Name of the uploaded file.
+      - `fileDownloadUri`: URL to download the uploaded file.
+      - `contentType`: Content type of the file.
+      - `size`: Size of the uploaded file in bytes.
+
+- **Example:**
+  ```
+  POST /api/v1/pdfify/storeSingleFile
+  Content-Type: multipart/form-data
+  Body: <PDF File>
+  ```
+
+---
+
+### **API Endpoint: Download a Single PDF File**
+
+- **Description:** This endpoint allows users to download a single PDF file.
+
+- **URL:** `/api/v1/pdfify/downloadFile/{fileName:.+}`
+
+- **HTTP Method:** GET
+
+- **Path Variable:**
+  - `fileName` (String): The name of the PDF file to be downloaded.
+
+- **Responses:**
+  - Success (Status 200 OK):
+    - The PDF file as the response body with appropriate content type and headers.
+
+- **Example:**
+  ```
+  GET /api/v1/pdfify/downloadFile/sample.pdf
+  ```
+
+---
+
+### **API Endpoint: Search Text in All Files and Get List of File Names**
+
+- **Description:** This endpoint allows users to search for a text string within all the PDF files.
+
+- **URL:** `/api/v1/pdfify/searchTextInFile`
+
+- **HTTP Method:** GET
+
+- **Request Parameters:**
+  - `searchText` (String): The text to be searched within the PDF files.
+
+- **Responses:**
+  - Success (Status 200 OK):
+    - JSON array containing the names of files that contain the searched text.
+
+- **Example:**
+  ```
+  GET /api/v1/pdfify/searchTextInFile?searchText=example
+  ```
+
+---
+
+### **API Endpoint: Get the First File Where Searched Text Exists**
+
+- **Description:** This endpoint allows users to get the first PDF file where the searched text exists.
+
+- **URL:** `/api/v1/pdfify/getFileWhichContainsSearchText`
+
+- **HTTP Method:** GET
+
+- **Request Parameters:**
+  - `searchText` (String): The text to be searched within the PDF files.
+
+- **Responses:**
+  - Success (Status 200 OK):
+    - The PDF file containing the searched text as the response body with appropriate content type and headers.
+
+- **Example:**
+  ```
+  GET /api/v1/pdfify/getFileWhichContainsSearchText?searchText=example
+  ```
+
+---
+
+**Note:**
+
+- All endpoints use proper HTTP status codes for success and error responses.
+- The `PdfExtractorService` handles PDF file operations and text searching.
+- The API is versioned under `/api/v1/pdfify` for future updates.
+- Proper content type and headers are set for downloading PDF files.
+
+---
+*Please ensure that the code is reviewed and tested before deploying it to a production environment. The above documentation serves as a guideline for understanding the API functionality.*
