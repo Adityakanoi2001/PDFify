@@ -1,4 +1,4 @@
-package com.example.PDFify.configuration;
+package com.example.PDFify.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

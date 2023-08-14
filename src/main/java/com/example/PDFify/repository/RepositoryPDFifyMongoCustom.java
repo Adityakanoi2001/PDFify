@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.PDFify.entity.PDFEntity;
 
 @Service
-public class RepositoryMongoCustom {
+public class RepositoryPDFifyMongoCustom {
 
   @Autowired
   MongoTemplate mongoTemplate;

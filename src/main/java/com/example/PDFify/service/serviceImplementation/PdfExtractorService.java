@@ -1,4 +1,4 @@
-package com.example.PDFify.service;
+package com.example.PDFify.service.serviceImplementation;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -21,29 +21,26 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.PDFify.configuration.FileStorageProperties;
+import com.example.PDFify.properties.FileStorageProperties;
 import com.example.PDFify.dto.ChatRequestDto;
 import com.example.PDFify.dto.ChatResponseDto;
 import com.example.PDFify.dto.FileContentDto;
 import com.example.PDFify.dto.MessageDto;
 import com.example.PDFify.entity.PDFEntity;
-import com.example.PDFify.entity.PDFifyChatGPTEntity;
-import com.example.PDFify.repository.RepositoryMongoCustom;
-import com.example.PDFify.repository.RepositoryPDFifyChatGPTMongoConnection;
-import com.example.PDFify.repository.RepositoryPDFifyMongoConnection;
+import com.example.PDFify.repository.RepositoryPDFifyMongoCustom;
+import com.example.PDFify.repository.RepositoryPDFifyMongo;
+import com.example.PDFify.service.serviceInterface.PdfExtractorServiceInterface;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class PdfExtractorService {
+public class PdfExtractorService implements PdfExtractorServiceInterface {
 
   @Autowired
-  RepositoryPDFifyMongoConnection repositoryPDFifyMongoConnection;
+  RepositoryPDFifyMongo repositoryPDFifyMongo;
   @Autowired
-  RepositoryPDFifyChatGPTMongoConnection repositoryPDFifyChatGPTMongoConnection;
-  @Autowired
-  RepositoryMongoCustom repositoryMongoCustom;
+  RepositoryPDFifyMongoCustom repositoryPDFifyMongoCustom;
   private final Path fileStorageLocation;
   @Autowired
   private RestTemplate restTemplate;
@@ -102,14 +99,14 @@ public class PdfExtractorService {
       fileContentDto.setFileName(multipartFile.getOriginalFilename());
       fileContentDto.setFileSize(multipartFile.getSize());
       BeanUtils.copyProperties(fileContentDto, pdfEntity);
-      repositoryPDFifyMongoConnection.save(pdfEntity);
+      repositoryPDFifyMongo.save(pdfEntity);
     } catch (final Exception ex) {
       log.error("Error parsing PDF", ex);
     }
     return fileContentDto;
   }
 
-  public Resource downloadSinglePDFFile(String fileName) throws Exception {
+  private Resource downloadSinglePDFFile(String fileName) throws Exception {
     try {
       Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
       Resource resource = new UrlResource(filePath.toUri());
@@ -123,8 +120,8 @@ public class PdfExtractorService {
     }
   }
 
-  public List<String> findMatchingTextInContent(String searchString) {
-    List<PDFEntity> pdfEntityList = repositoryMongoCustom.findMatchingTextInContent(searchString);
+  private List<String> findMatchingTextInContent(String searchString) {
+    List<PDFEntity> pdfEntityList = repositoryPDFifyMongoCustom.findMatchingTextInContent(searchString);
     return pdfEntityList.stream().map(PDFEntity::getFileName).collect(Collectors.toList());
   }
 
@@ -143,11 +140,11 @@ public class PdfExtractorService {
     }
   }
 
-  public String summaryFileResult(MultipartFile multipartFile) {
+  public FileContentDto summaryFileResult(MultipartFile multipartFile) {
     log.warn("Invoking Function with {} File For Data Scan", multipartFile.getOriginalFilename());
     FileContentDto fileContentDto = new FileContentDto();
+    PDFEntity pdfEntity = new PDFEntity();
     String summary;
-    PDFifyChatGPTEntity pdFifyChatGPTEntity = new PDFifyChatGPTEntity();
     try (final PDDocument document = PDDocument.load(multipartFile.getInputStream())) {
 
       final PDFTextStripper pdfStripper = new PDFTextStripper();
@@ -164,15 +161,13 @@ public class PdfExtractorService {
           new ChatRequestDto(model, List.of(new MessageDto("user", prompt)), maxCompletions, temperature, maxTokens);
       ChatResponseDto response = restTemplate.postForObject(apiUrl, request, ChatResponseDto.class);
       summary = response.getChoices().get(0).getMessage().getContent();
-
-      BeanUtils.copyProperties(fileContentDto, pdFifyChatGPTEntity);
-      pdFifyChatGPTEntity.setSummary(summary);
-      repositoryPDFifyChatGPTMongoConnection.save(pdFifyChatGPTEntity);
-
+      fileContentDto.setSummary(summary);
+      BeanUtils.copyProperties(fileContentDto,pdfEntity);
+      repositoryPDFifyMongo.save(pdfEntity);
     } catch (IOException e) {
       log.error("Error parsing PDF", e);
       throw new RuntimeException(e);
     }
-    return summary;
+    return fileContentDto;
   }
 }
