@@ -18,5 +18,6 @@ public class PDFEntity implements Serializable {
   private String fileName;
   private String content;
   private long fileSize;
+  private String summary;
   private URL filePath;
 }
