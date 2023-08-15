@@ -37,40 +37,46 @@ PDFify is a Spring Boot Java-based project that allows you to perform various PD
 
 ## Endpoints
 
-1. **POST /api/v1/pdfify/storeSingleFile**:
-   - Description: Upload a single PDF file to the application.
-   - Request Method: POST
-   - Request Parameters:
-     - `file`: The PDF file to be uploaded.
-   - Response: Returns a `FileUploadResponse` object containing details about the uploaded file, including the file name, download URI, content type, and size.
+Access All the Endpoints at  : https://pdfify-production.up.railway.app/swagger-ui/#/  (Production Level API Endpoints)
 
-2. **GET /api/v1/pdfify/downloadFile/{fileName:.+}**:
-   - Description: Download a specific PDF file by providing its file name.
-   - Request Method: GET
-   - Path Variable:
-     - `fileName`: The name of the PDF file to be downloaded.
-   - Response: Returns the requested PDF file as a `Resource` in the response body. The content type and content disposition (attachment with filename) are also set in the response headers.
+### 1. Upload a Single PDF File
 
-3. **POST /api/v1/pdfify/summarizeMyFile**:
-   - Description: Summarize a PDF file uploaded to the application.
-   - Request Method: POST
-   - Request Parameters:
-     - `file`: The PDF file to be summarized.
-   - Response: Returns the summarized text of the provided PDF file as a string.
+- **Endpoint**: `POST /api/v1/pdfify/storeSingleFile`
+- **Description**: Upload a single PDF file to the application.
+- **Request Method**: POST
+- **Request Parameters**:
+    - `file`: The PDF file to be uploaded.
+- **Response**: Returns a `FileUploadResponse` object containing details about the uploaded file, including the file name, download URI, content type, and size.
 
-4. **GET /api/v1/pdfify/searchTextInFile**:
-   - Description: Search for a text in all the PDF files stored in the application and get a list of matching file names.
-   - Request Method: GET
-   - Request Parameters:
-     - `searchText`: The text to search for in the PDF files.
-   - Response: Returns a list of file names of PDF files that contain the searched text.
+### 2. Get First File Containing Text
 
-5. **GET /api/v1/pdfify/getFileWhichContainsSearchText**:
-   - Description: Get the first PDF file where the searched text exists.
-   - Request Method: GET
-   - Request Parameters:
-     - `searchText`: The text to search for in the PDF files.
-   - Response: Returns the first PDF file that contains the searched text as a `Resource` in the response body. The content disposition (attachment with filename) is also set in the response headers.
+- **Endpoint**: `GET /api/v1/pdfify/getFirstFileWhichContainsText`
+- **Description**: Get the first PDF file where the searched text exists.
+- **Request Method**: GET
+- **Request Parameters**:
+    - `searchText`: The text to search for in the PDF files.
+- **Response**: Returns the first PDF file that contains the searched text as a `Resource` in the response body. The content disposition (attachment with filename) is also set in the response headers.
+
+### 3. Summarize Uploaded PDF File
+
+- **Endpoint**: `POST /api/v1/pdfify/summarizeFile`
+- **Description**: Summarize a PDF file uploaded to the application.
+- **Request Method**: POST
+- **Request Parameters**:
+    - `file`: The PDF file to be summarized.
+- **Response**: Returns a `FileContentDto` object containing the summarized content of the provided PDF file.
+
+### 4. Upload Multiple PDF Files
+
+- **Endpoint**: `POST /api/v1/pdfify/uploadMultipleFiles`
+- **Description**: Upload multiple PDF files to the application.
+- **Request Method**: POST
+- **Request Parameters**:
+    - `files`: An array of PDF files to be uploaded.
+- **Response**: Returns a list of `FileUploadResponse` objects containing details about the uploaded files.
+
+## Performace 
+
 
 
 ## How to Contribute
@@ -91,10 +97,10 @@ Thank you for using PDFify! 😊
 - [ ] 📸 **Mobile Image Bills Summary**
   Click a picture of your bills using your mobile and receive a neatly compiled summary report straight to your email.
 
-- [ ] 📝 **AI-Generated Logo and Contact Info**
-  Give your documents a professional touch! Automatically update your documents with a custom AI-generated logo and contact information.
+- [ ] 📝 **Multi language PDF Simplification and Conversion to English**
+  Get English Version of the Multi-Language Supported PDF Files Uploaded 
 
-- [ ] ⏬ **Bulk PDF Upload**
+- [x] ⏫ **Bulk PDF Upload**
   Save time by uploading multiple PDFs at once! Our platform allows for quick and efficient bulk uploading.
 
 Stay tuned for these exciting updates! 🔥💯🚀
