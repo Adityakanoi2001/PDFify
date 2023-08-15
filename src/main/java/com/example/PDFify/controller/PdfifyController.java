@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
@@ -16,6 +18,7 @@ import com.example.PDFify.dto.FileContentDto;
 import com.example.PDFify.dto.FileUploadResponse;
 import com.example.PDFify.service.serviceInterface.PdfExtractorServiceInterface;
 import com.example.PDFify.utility.ApiPaths;
+import com.example.PDFify.utility.HelperFunctions;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +29,8 @@ public class PdfifyController {
 
   @Autowired
   PdfExtractorServiceInterface pdfExtractorServiceInterface;
+  @Autowired
+  HelperFunctions helperFunctions;
 
   @PostMapping(ApiPaths.SINGLE_FILE_UPLOAD)
   public ResponseEntity<FileUploadResponse> singleFileUpload(@RequestParam("file") MultipartFile file) {
@@ -71,5 +76,21 @@ public class PdfifyController {
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+  }
+
+  @PostMapping(ApiPaths.MULTIPLE_FILE_UPLOAD)
+  public List<ResponseEntity<FileUploadResponse>> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
+    List<ResponseEntity<FileUploadResponse>> responses = new ArrayList<>();
+
+    for (MultipartFile file : files) {
+      try {
+        ResponseEntity<FileUploadResponse> response = singleFileUpload(file);
+        responses.add(response);
+      } catch (Exception e) {
+        ResponseEntity<FileUploadResponse> errorResponse = helperFunctions.handleFileUploadException(e);
+        responses.add(errorResponse);
+      }
+    }
+    return responses;
   }
 }
